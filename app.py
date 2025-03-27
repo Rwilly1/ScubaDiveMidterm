@@ -3,8 +3,8 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime, timedelta
 import json
-import io
 import base64
+import io
 import os
 import tempfile
 import webbrowser
