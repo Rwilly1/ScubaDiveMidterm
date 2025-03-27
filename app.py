@@ -16,6 +16,14 @@ from dive_table import (
 )
 import io
 import base64
+import os
+
+# Read and encode the tank image
+def get_tank_image_base64():
+    image_path = os.path.join(os.path.dirname(__file__), "static", "images", "tank.png")
+    with open(image_path, "rb") as image_file:
+        encoded_string = base64.b64encode(image_file.read()).decode()
+    return f"data:image/png;base64,{encoded_string}"
 
 st.set_page_config(
     page_title="Scuba Diving Assistant",
@@ -793,7 +801,24 @@ def weather_page():
         """)
 
 def main():
-    st.sidebar.title("🤿 Scuba Assistant")
+    # Add tank logo to sidebar
+    tank_image = get_tank_image_base64()
+    st.sidebar.markdown(f"""
+        <div style='text-align: center; padding: 2rem 0; margin: 1rem 0;'>
+            <a href="/" style='text-decoration: none;'>
+                <img src="{tank_image}" style='width: 150px; height: auto; margin-bottom: 1rem;' alt="Scuba Tank Logo">
+                <div style='
+                    font-family: "Marker Felt", "Comic Sans MS", cursive;
+                    font-size: 32px;
+                    color: #2A9D8F;
+                    margin-top: 0.5rem;
+                    line-height: 1.2;
+                '>
+                    Scuba<br>Assistant
+                </div>
+            </a>
+        </div>
+    """, unsafe_allow_html=True)
     
     pages = {
         "Dive Log Entry": dive_log_page,
