@@ -891,9 +891,16 @@ def view_journals_page():
             # Print button and functionality
             if st.button(f"🖨️ Print Entry", key=f"print_{entry['timestamp']}"):
                 # Import required modules
-                import os
-                import tempfile
-                import webbrowser
+                import base64
+                from pathlib import Path
+                
+                # Function to get base64 encoded image
+                def get_image_base64(image_path):
+                    try:
+                        with open(image_path, "rb") as img_file:
+                            return base64.b64encode(img_file.read()).decode()
+                    except:
+                        return None
                 
                 # Generate printable HTML
                 html_content = f"""
@@ -972,7 +979,7 @@ def view_journals_page():
                         <div><strong>Rating:</strong> {"⭐" * entry['rating']}</div>
                     </div>
                     
-                    {f'<img src="{os.path.abspath(entry["image_path"])}" alt="Dive Photo">' if entry.get('image_path') else ''}
+                    {f'<img src="data:image/jpeg;base64,{get_image_base64(entry["image_path"])}">' if entry.get('image_path') else ''}
                     
                     <div class="content">
                         {entry['content']}
@@ -985,15 +992,18 @@ def view_journals_page():
                 </html>
                 """
                 
-                # Create a temporary HTML file
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.html', mode='w') as f:
-                    f.write(html_content)
-                    temp_path = f.name
+                # Create a data URL from the HTML
+                html_b64 = base64.b64encode(html_content.encode()).decode()
                 
-                # Open in browser for printing
-                webbrowser.open('file://' + os.path.abspath(temp_path))
+                # Open in new tab using JavaScript
+                js = f"""
+                    <script>
+                        window.open("data:text/html;base64,{html_b64}", "_blank");
+                    </script>
+                """
+                st.components.v1.html(js, height=0)
                 
-                st.success("Print page opened in your browser! Use your browser's print function (Ctrl/Cmd + P) to print the journal entry.")
+                st.success("Print page opened in a new tab! Use your browser's print function (Ctrl/Cmd + P) to print the journal entry.")
 
 def main():
     # Add tank logo to sidebar
