@@ -451,7 +451,7 @@ def view_logs_page():
     df = pd.DataFrame(load_dive_logs())
     
     if df.empty:
-        st.warning("No dive logs found.")
+        st.warning("No dive logs found. Enter a dive log to view here.")
         return
     
     # Create visualization
