@@ -879,20 +879,11 @@ def view_journals_page():
             st.markdown("---")
             st.markdown(entry['content'])
             
-            # Center the print button with CSS
-            st.markdown("""
-                <style>
-                    div[data-testid="stButton"] {
-                        text-align: center;
-                    }
-                </style>
-            """, unsafe_allow_html=True)
-            
-            # Print button and functionality
-            if st.button(f"🖨️ Print Entry", key=f"print_{entry['timestamp']}"):
-                # Import required modules
+            # Download PDF button and functionality
+            if st.button(f"📥 Download as PDF", key=f"pdf_{entry['timestamp']}"):
                 import base64
-                from pathlib import Path
+                from weasyprint import HTML
+                from io import BytesIO
                 
                 # Function to get base64 encoded image
                 def get_image_base64(image_path):
@@ -902,19 +893,30 @@ def view_journals_page():
                     except:
                         return None
                 
-                # Generate printable HTML
+                # Generate HTML content
                 html_content = f"""
                 <html>
                 <head>
                     <title>{entry['title']} - Dive Journal</title>
                     <style>
-                        /* Screen styles */
+                        @page {{
+                            margin: 2.5cm;
+                            @top-center {{
+                                content: "{entry['title']}";
+                                font-size: 9pt;
+                                color: #666;
+                            }}
+                            @bottom-center {{
+                                content: counter(page);
+                                font-size: 9pt;
+                                color: #666;
+                            }}
+                        }}
                         body {{
                             font-family: Arial, sans-serif;
-                            max-width: 800px;
-                            margin: 40px auto;
-                            padding: 20px;
                             line-height: 1.6;
+                            margin: 0;
+                            padding: 0;
                         }}
                         .header {{
                             text-align: center;
@@ -924,6 +926,7 @@ def view_journals_page():
                             font-size: 24px;
                             font-weight: bold;
                             margin-bottom: 10px;
+                            color: #3C1642;
                         }}
                         .meta {{
                             display: grid;
@@ -943,28 +946,7 @@ def view_journals_page():
                             height: auto;
                             margin: 20px 0;
                         }}
-                        
-                        /* Print-specific styles */
-                        @media print {{
-                            body {{
-                                margin: 0;
-                                padding: 15px;
-                            }}
-                            .meta {{
-                                background: none;
-                                border: 1px solid #ccc;
-                            }}
-                            .no-print {{
-                                display: none;
-                            }}
-                        }}
                     </style>
-                    <script>
-                        // Auto-trigger print dialog
-                        window.onload = function() {{
-                            window.print();
-                        }}
-                    </script>
                 </head>
                 <body>
                     <div class="header">
@@ -984,26 +966,21 @@ def view_journals_page():
                     <div class="content">
                         {entry['content']}
                     </div>
-                    
-                    <div class="no-print" style="margin-top: 30px; text-align: center;">
-                        <p>If the print dialog doesn't open automatically, press Ctrl/Cmd + P to print.</p>
-                    </div>
                 </body>
                 </html>
                 """
                 
-                # Create a data URL from the HTML
-                html_b64 = base64.b64encode(html_content.encode()).decode()
+                # Generate PDF
+                pdf_buffer = BytesIO()
+                HTML(string=html_content).write_pdf(pdf_buffer)
                 
-                # Open in new tab using JavaScript
-                js = f"""
-                    <script>
-                        window.open("data:text/html;base64,{html_b64}", "_blank");
-                    </script>
-                """
-                st.components.v1.html(js, height=0)
-                
-                st.success("Print page opened in a new tab! Use your browser's print function (Ctrl/Cmd + P) to print the journal entry.")
+                # Create download button
+                st.download_button(
+                    label="📄 Save PDF",
+                    data=pdf_buffer.getvalue(),
+                    file_name=f"dive_journal_{entry['date']}_{entry['title'].replace(' ', '_')}.pdf",
+                    mime="application/pdf",
+                )
 
 def main():
     # Add tank logo to sidebar
