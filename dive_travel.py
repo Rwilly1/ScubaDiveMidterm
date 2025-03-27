@@ -1,26 +1,65 @@
+"""
+Dive Travel Safety Calculator
+
+This module implements a calculator for determining safe flying times after diving.
+It follows guidelines from major diving organizations (DAN, PADI, NAUI) to help
+divers avoid decompression sickness when flying after diving activities.
+
+Features:
+- Surface interval calculations based on organization guidelines
+- Support for single and multiple dive scenarios
+- Detailed safety messages and warnings
+- Time-based calculations with datetime handling
+"""
+
 from datetime import datetime, timedelta
 from typing import Tuple, Optional
 
 class DiveTravelCalculator:
+    """
+    Calculator for determining safe flying times after diving activities.
+    
+    This class implements the surface interval guidelines from major diving
+    organizations to help divers plan their post-dive travel safely.
+    """
+    
     def __init__(self):
+        """
+        Initialize the calculator with recommended surface intervals.
+        
+        Surface intervals are defined in hours for each organization,
+        with different requirements for single and multiple dive scenarios.
+        """
         # Define recommended surface intervals (in hours) for each organization
         self.surface_intervals = {
             'DAN': {
-                'single': 12,
-                'multiple': 18
+                'single': 12,    # DAN recommends 12h minimum after single dive
+                'multiple': 18   # 18h after multiple dives
             },
             'PADI': {
-                'single': 12,
+                'single': 12,    # PADI follows similar guidelines to DAN
                 'multiple': 18
             },
             'NAUI': {
-                'single': 24,
+                'single': 24,    # NAUI is more conservative with 24h for all scenarios
                 'multiple': 24
             }
         }
 
     def get_required_interval(self, organization: str, multiple_dives: bool) -> int:
-        """Get required surface interval in hours before flying."""
+        """
+        Get the required surface interval in hours before flying.
+        
+        Args:
+            organization (str): Name of diving organization (DAN/PADI/NAUI)
+            multiple_dives (bool): Whether multiple dives were performed
+        
+        Returns:
+            int: Required surface interval in hours
+            
+        Raises:
+            ValueError: If organization is not recognized
+        """
         if organization not in self.surface_intervals:
             raise ValueError(f"Unknown organization: {organization}")
         
@@ -31,7 +70,17 @@ class DiveTravelCalculator:
                        organization: str, multiple_dives: bool) -> Tuple[bool, str]:
         """
         Check if it's safe to fly based on the last dive and organization guidelines.
-        Returns (is_safe, message)
+        
+        Args:
+            last_dive_time (datetime): Time when the last dive ended
+            flight_time (datetime): Planned flight departure time
+            organization (str): Name of diving organization (DAN/PADI/NAUI)
+            multiple_dives (bool): Whether multiple dives were performed
+        
+        Returns:
+            Tuple[bool, str]: (is_safe, message)
+                - is_safe: True if enough surface interval time has passed
+                - message: Detailed explanation of the safety status
         """
         required_hours = self.get_required_interval(organization, multiple_dives)
         time_diff = flight_time - last_dive_time
@@ -47,7 +96,21 @@ class DiveTravelCalculator:
             return False, f"⚠️ NOT safe to fly! You need {hours_short:.1f} more hours of surface interval"
 
 def get_datetime_input(prompt: str) -> Optional[datetime]:
-    """Get and validate datetime input from user."""
+    """
+    Get and validate datetime input from user.
+    
+    Args:
+        prompt (str): Message to display when requesting input
+    
+    Returns:
+        Optional[datetime]: Parsed datetime object or None if user cancels
+        
+    Example:
+        >>> time = get_datetime_input("Enter dive time")
+        Enter dive time (format: YYYY-MM-DD HH:MM): 2025-03-26 14:30
+        >>> print(time)
+        2025-03-26 14:30:00
+    """
     while True:
         try:
             date_str = input(prompt + " (format: YYYY-MM-DD HH:MM): ")
@@ -58,6 +121,15 @@ def get_datetime_input(prompt: str) -> Optional[datetime]:
             return None
 
 def main():
+    """
+    Main entry point for the dive travel calculator.
+    
+    Provides an interactive interface for:
+    1. Selecting diving organization
+    2. Specifying single/multiple dive scenario
+    3. Entering dive and flight times
+    4. Receiving safety assessment and recommendations
+    """
     print("\n=== Dive Travel Safety Calculator ===\n")
     print("This calculator helps determine if it's safe to fly after diving based on")
     print("recommended surface intervals from major diving organizations.\n")

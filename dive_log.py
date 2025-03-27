@@ -1,3 +1,20 @@
+"""
+Dive Log Management System
+
+This module provides a comprehensive system for creating, storing, and managing scuba diving logs.
+It includes functionality for:
+- Creating detailed dive log entries with extensive metadata
+- Storing dive logs in a JSON file
+- Loading and displaying dive log history
+- Tracking various dive parameters including:
+  * Depth and time information
+  * Environmental conditions
+  * Equipment used
+  * Gas consumption
+  * Exposure protection
+  * Verification details
+"""
+
 from dataclasses import dataclass, asdict
 from datetime import datetime
 from typing import List, Optional, Dict, Any
@@ -7,6 +24,40 @@ import uuid
 
 @dataclass
 class DiveLog:
+    """
+    A comprehensive dive log entry containing all relevant information about a dive.
+    
+    Attributes:
+        diver_name (str): Name of the diver
+        dive_number (int): Sequential number of this dive
+        date (str): Date of the dive in YYYY-MM-DD format
+        location (str): Dive site location
+        depth_avg (float): Average depth in feet
+        depth_max (float): Maximum depth reached in feet
+        bottom_time (int): Total time spent underwater in minutes
+        safety_stop_time (int): Time spent at safety stop in minutes
+        rnt (int): Residual Nitrogen Time from previous dive
+        abt (int): Actual Bottom Time of this dive
+        tbt (int): Total Bottom Time (RNT + ABT)
+        dive_type (List[str]): Characteristics of dive (Fresh/Salt, Shore/Boat, etc.)
+        activities (List[str]): Activities performed during dive
+        temperature_air (float): Air temperature
+        temperature_surface (float): Water temperature at surface
+        temperature_bottom (float): Water temperature at depth
+        visibility_ft (float): Underwater visibility in feet
+        air_start_psi (int): Starting air pressure in PSI
+        air_end_psi (int): Ending air pressure in PSI
+        gas_type (str): Type of breathing gas used (Air/Nitrox)
+        weight_lbs (float): Amount of weight used in pounds
+        weight_adjustment (str): Weight adjustment indicator (+/-/)
+        exposure_protection (Dict[str, float]): Type and thickness of exposure protection
+        equipment_used (List[str]): Special equipment used during dive
+        verification_type (str): Type of dive verification
+        certification_number (str): Certifier's certification number
+        nitrox_percentage (Optional[int]): Percentage of oxygen if Nitrox used
+        id (Optional[str]): Unique identifier for the dive log
+        created_at (Optional[str]): Timestamp when log was created
+    """
     diver_name: str
     dive_number: int
     date: str
@@ -38,15 +89,24 @@ class DiveLog:
     created_at: Optional[str] = None
 
     def __post_init__(self):
-        # Generate ID and timestamp only for new logs
+        """
+        Initialize unique identifier and timestamp for new dive logs.
+        Called automatically after the dataclass is initialized.
+        """
         if not self.id:
             self.id = str(uuid.uuid4())
         if not self.created_at:
             self.created_at = datetime.now().isoformat()
 
     def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert the dive log to a dictionary format for JSON serialization.
+        Ensures id and created_at are at the start of the dictionary for readability.
+        
+        Returns:
+            Dict[str, Any]: Dictionary representation of the dive log
+        """
         data = asdict(self)
-        # Move id and created_at to the start of the dictionary
         if 'id' in data:
             id_value = data.pop('id')
             data = {'id': id_value, **data}
@@ -56,7 +116,12 @@ class DiveLog:
         return data
 
 def get_dive_log_input() -> DiveLog:
-    """Get dive log information from user input."""
+    """
+    Get dive log information from user input.
+    
+    Returns:
+        DiveLog: A new dive log object based on user input
+    """
     print("\n=== Dive Log Entry ===\n")
     
     # Basic dive info
@@ -170,7 +235,12 @@ def get_dive_log_input() -> DiveLog:
     )
 
 def save_dive_log(dive_log: DiveLog) -> None:
-    """Save dive log to JSON file."""
+    """
+    Save dive log to JSON file.
+    
+    Args:
+        dive_log (DiveLog): The dive log to save
+    """
     try:
         with open("dive_logs.json", "r") as f:
             logs = json.load(f)
@@ -190,7 +260,12 @@ def save_dive_log(dive_log: DiveLog) -> None:
         json.dump(logs, f, indent=2)
 
 def load_dive_logs() -> List[Dict[str, Any]]:
-    """Load dive logs from JSON file."""
+    """
+    Load dive logs from JSON file.
+    
+    Returns:
+        List[Dict[str, Any]]: List of dive logs
+    """
     try:
         with open("dive_logs.json", "r") as f:
             logs = json.load(f)
@@ -213,7 +288,12 @@ def load_dive_logs() -> List[Dict[str, Any]]:
         return []
 
 def print_dive_log(dive_log: DiveLog) -> None:
-    """Print formatted dive log report."""
+    """
+    Print formatted dive log report.
+    
+    Args:
+        dive_log (DiveLog): The dive log to print
+    """
     print("\n" + "="*50)
     print(f"DIVE LOG REPORT #{dive_log.dive_number} - {dive_log.diver_name}")
     print("="*50)
@@ -260,6 +340,9 @@ def print_dive_log(dive_log: DiveLog) -> None:
     print("\n" + "="*50 + "\n")
 
 def main() -> None:
+    """
+    Main entry point of the program.
+    """
     try:
         # Get dive log information
         dive_log = get_dive_log_input()

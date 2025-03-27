@@ -1,9 +1,26 @@
-# PADI Recreational Dive Planner Implementation
+"""
+PADI Recreational Dive Planner (RDP) Implementation
+
+This module implements the PADI RDP tables and calculations for:
+- Determining pressure groups based on depth and time
+- Calculating surface intervals and new pressure groups
+- Managing residual nitrogen times
+- Validating dive plans against no-decompression limits
+- Supporting repetitive dive calculations
+
+All depth values are in feet and all time values are in minutes unless otherwise specified.
+Pressure groups are represented by letters A-Z where:
+- A represents the least nitrogen saturation
+- Z represents the most nitrogen saturation
+"""
+
 from typing import Tuple, Dict, Optional
 
 # No-Decompression Limits Table (depth in feet : max bottom time in minutes)
+# These are the maximum allowable bottom times for a single dive at each depth
+# before mandatory decompression stops are required
 no_deco_limits = {
-    35: 205,
+    35: 205,  # Shallow dives allow for very long bottom times
     40: 140,
     50: 80,
     60: 55,
@@ -14,13 +31,16 @@ no_deco_limits = {
     110: 16,
     120: 13,
     130: 10,
-    140: 8
+    140: 8    # Deep dives require much shorter bottom times
 }
 
 # Pressure groups A-Z mapped to their numeric index (0-25)
+# Used for calculations involving pressure group progression
 PRESSURE_GROUPS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
 # No-Decompression Limits Table
+# Format: (depth): [(time, pressure_group), ...]
+# Each tuple represents the maximum time to reach that pressure group at that depth
 pressure_group_table = {
     35: [(10, 'A'), (19, 'B'), (25, 'C'), (29, 'D'), (32, 'E'), (36, 'F'), (40, 'G'), (44, 'H'),
          (48, 'I'), (52, 'J'), (57, 'K'), (62, 'L'), (67, 'M'), (73, 'N'), (79, 'O'), (85, 'P'),
@@ -58,6 +78,8 @@ pressure_group_table = {
 
 # Residual Nitrogen Time Table (Table 3)
 # Format: (depth, pressure_group): residual_nitrogen_time
+# This table shows how much residual nitrogen time must be added to the actual bottom time
+# of a repetitive dive based on the pressure group from the previous dive
 rnt_table = {
     (35, 'A'): 10,
     (35, 'B'): 19,
@@ -279,6 +301,7 @@ rnt_table = {
 
 # Surface Interval Credit Table (in minutes)
 # Format: (old_group, new_group): (min_time, max_time)
+# Shows how long a diver must stay at the surface to reach a new pressure group
 surface_interval_table = {
     # Group Z
     ('Z', 'A'): (180, float('inf')),
@@ -562,65 +585,106 @@ surface_interval_table = {
 }
 
 def get_pressure_group(depth: int, time: int) -> str:
-    """Get pressure group letter based on depth and bottom time."""
-    if depth not in pressure_group_table:
-        return "Invalid depth"
+    """
+    Calculate the pressure group letter based on depth and bottom time.
     
-    for max_time, group in pressure_group_table[depth]:
-        if time <= max_time:
+    Args:
+        depth (int): Dive depth in feet
+        time (int): Bottom time in minutes
+    
+    Returns:
+        str: Pressure group letter (A-Z) or empty string if no valid group found
+    """
+    if depth not in pressure_group_table:
+        return ""
+    
+    for t, group in pressure_group_table[depth]:
+        if time <= t:
             return group
-    return "Exceeds limits"
+    return ""
 
 def get_new_group_after_surface_interval(old_group: str, surface_interval: int) -> str:
-    """Get new pressure group after surface interval."""
-    for (start, end), (min_time, max_time) in surface_interval_table.items():
-        if start == old_group and min_time <= surface_interval <= max_time:
-            return end
-            
-    # If we get here, find the lowest possible group
-    # Sort by ending group, from Z to A
-    possible_transitions = sorted(
-        [(start, end, min_time, max_time) 
-         for (start, end), (min_time, max_time) in surface_interval_table.items()
-         if start == old_group],
-        key=lambda x: PRESSURE_GROUPS.index(x[1]), reverse=True
-    )
+    """
+    Calculate the new pressure group after a surface interval.
     
-    # Find first transition where surface interval is less than min time
-    for _, end, min_time, _ in possible_transitions:
-        if surface_interval < min_time:
-            continue
-        return end
+    Args:
+        old_group (str): Previous pressure group letter (A-Z)
+        surface_interval (int): Time spent at surface in minutes
     
-    # If surface interval is longer than all intervals, return A
-    return 'A'
+    Returns:
+        str: New pressure group letter after surface interval
+    """
+    if not old_group or old_group not in PRESSURE_GROUPS:
+        return ""
+    
+    for new_group in PRESSURE_GROUPS:
+        interval_key = (old_group, new_group)
+        if interval_key in surface_interval_table:
+            min_time, max_time = surface_interval_table[interval_key]
+            if min_time <= surface_interval <= max_time:
+                return new_group
+    return ""
 
 def get_rnt(pg: str, depth: int) -> int:
-    """Get residual nitrogen time for pressure group and planned depth."""
-    # First check if this combination exists in the table
-    rnt = rnt_table.get((depth, pg), -1)
-    if rnt >= 0:
-        return rnt
-        
-    # If not in table, this combination is not allowed
-    # This handles cases where the pressure group is too high for the depth
-    return 0
+    """
+    Get the residual nitrogen time for a given pressure group and planned depth.
+    
+    Args:
+        pg (str): Current pressure group letter (A-Z)
+        depth (int): Planned dive depth in feet
+    
+    Returns:
+        int: Residual nitrogen time in minutes to add to actual bottom time
+    """
+    key = (depth, pg)
+    return rnt_table.get(key, 0)
 
 def check_ndl(depth: int, tbt: int) -> bool:
-    """Check if total bottom time is within no-decompression limits."""
-    if depth not in no_deco_limits:
-        return False
-    return tbt <= no_deco_limits[depth]
+    """
+    Check if total bottom time is within no-decompression limits.
+    
+    Args:
+        depth (int): Dive depth in feet
+        tbt (int): Total bottom time in minutes (including residual nitrogen)
+    
+    Returns:
+        bool: True if dive is within limits, False if decompression required
+    """
+    return depth in no_deco_limits and tbt <= no_deco_limits[depth]
 
 def calculate_total_bottom_time(rnt: int, planned_time: int) -> int:
-    """Calculate total bottom time (RNT + planned time)."""
+    """
+    Calculate total bottom time by adding residual nitrogen time to planned time.
+    
+    Args:
+        rnt (int): Residual nitrogen time from previous dive
+        planned_time (int): Planned bottom time for current dive
+    
+    Returns:
+        int: Total bottom time including residual nitrogen
+    """
     return rnt + planned_time
 
-def validate_repetitive_dive(depth: int, pg: str, planned_time: int) -> bool:
-    """Validate if a repetitive dive is safe."""
+def validate_repetitive_dive(depth: int, pg: str, planned_time: int) -> Tuple[bool, str]:
+    """
+    Validate if a repetitive dive plan is safe to execute.
+    
+    Args:
+        depth (int): Planned dive depth in feet
+        pg (str): Current pressure group letter (A-Z)
+        planned_time (int): Planned bottom time in minutes
+    
+    Returns:
+        Tuple[bool, str]: (is_safe, message)
+            - is_safe: True if dive plan is safe, False otherwise
+            - message: Explanation of validation result
+    """
     rnt = get_rnt(pg, depth)
     tbt = calculate_total_bottom_time(rnt, planned_time)
-    return check_ndl(depth, tbt)
+    
+    if not check_ndl(depth, tbt):
+        return False, f"Total bottom time {tbt} exceeds no-decompression limit for {depth} feet"
+    return True, "Dive plan is safe"
 
 def main():
     print("\n=== PADI Dive Planner Calculator ===\n")
@@ -647,7 +711,7 @@ def main():
     pg1 = get_pressure_group(depth1, time1)
     print(f"\nPressure Group after first dive: {pg1}")
 
-    if pg1 == "Exceeds limits":
+    if pg1 == "":
         print("⚠️ WARNING: First dive exceeds no-decompression limits!")
         return
 

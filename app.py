@@ -1,3 +1,15 @@
+"""
+Scuba Diving Assistant Web Application
+
+This is the main application file that implements a Streamlit-based web interface for scuba diving tools.
+The application provides multiple features including:
+- Dive logging and management
+- Dive planning with PADI tables
+- Travel planning for dive trips
+- Weather information for dive sites
+- Digital dive journal entries
+"""
+
 import streamlit as st
 import pandas as pd
 import plotly.express as px
@@ -12,13 +24,13 @@ from dive_log import DiveLog, save_dive_log
 from dive_travel import DiveTravelCalculator
 from dive_journal import DiveJournal
 from dive_table import (
-    get_pressure_group,
-    get_new_group_after_surface_interval as get_new_pressure_group,
-    get_rnt,
-    check_ndl,
-    calculate_total_bottom_time,
-    validate_repetitive_dive,
-    no_deco_limits
+    get_pressure_group,  # Calculate pressure group based on depth/time
+    get_new_group_after_surface_interval as get_new_pressure_group,  # Calculate new group after surface interval
+    get_rnt,  # Get residual nitrogen time
+    check_ndl,  # Check no-decompression limits
+    calculate_total_bottom_time,  # Calculate total bottom time including residual nitrogen
+    validate_repetitive_dive,  # Validate safety of repetitive dives
+    no_deco_limits  # PADI no-decompression limits table
 )
 
 # Read and encode the tank image
