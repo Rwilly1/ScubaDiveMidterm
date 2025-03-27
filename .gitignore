@@ -17,4 +17,4 @@ venv/
 .streamlit/
 
 # Project specific
-dive_logs.json
+# dive_logs.json

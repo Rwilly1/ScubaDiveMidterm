@@ -1,0 +1,91 @@
+[
+  {
+    "id": "63f48d16-8085-42de-9cdc-bf212bfb5fd1",
+    "created_at": "2025-03-26T22:50:14.624647",
+    "diver_name": "Remington Williams",
+    "dive_number": 2,
+    "date": "2025-12-20",
+    "location": "Belieze ",
+    "depth_avg": 60.0,
+    "depth_max": 85.0,
+    "bottom_time": 45,
+    "safety_stop_time": 6,
+    "rnt": 45,
+    "abt": 50,
+    "tbt": 95,
+    "dive_type": [
+      "Fresh",
+      "Boat",
+      "Deep"
+    ],
+    "activities": [
+      "Recreation",
+      "Reef",
+      "Cave"
+    ],
+    "temperature_air": 80.0,
+    "temperature_surface": 92.0,
+    "temperature_bottom": 60.0,
+    "visibility_ft": 45.0,
+    "air_start_psi": 5000,
+    "air_end_psi": 2500,
+    "gas_type": "Nitrox",
+    "weight_lbs": 25.0,
+    "weight_adjustment": "+",
+    "exposure_protection": {
+      "Full": 5.0
+    },
+    "equipment_used": [
+      "Computer"
+    ],
+    "verification_type": "Buddy",
+    "certification_number": "NA",
+    "nitrox_percentage": 40
+  },
+  {
+    "created_at": "2025-03-26T22:53:13.623620",
+    "id": "8380a07a-68ff-4191-924f-ef8b9791048b",
+    "diver_name": "Remington Williams",
+    "dive_number": 1,
+    "date": "2024-07-22",
+    "location": "Mexico",
+    "depth_avg": 60.0,
+    "depth_max": 90.0,
+    "bottom_time": 35,
+    "safety_stop_time": 5,
+    "rnt": 20,
+    "abt": 45,
+    "tbt": 65,
+    "dive_type": [
+      "Boat",
+      "Deep"
+    ],
+    "activities": [
+      "Wreck",
+      "Reef",
+      "Cave",
+      "Search & Recovery"
+    ],
+    "temperature_air": 55.0,
+    "temperature_surface": 70.0,
+    "temperature_bottom": 45.0,
+    "visibility_ft": 30.0,
+    "air_start_psi": 3000,
+    "air_end_psi": 1000,
+    "gas_type": "Air",
+    "weight_lbs": 10.0,
+    "weight_adjustment": "-5",
+    "exposure_protection": {
+      "Shorty": 3.0,
+      "Boots": 3.0
+    },
+    "equipment_used": [
+      "Camera",
+      "Computer",
+      "Flashlight"
+    ],
+    "verification_type": "Divemaster",
+    "certification_number": "12345",
+    "nitrox_percentage": null
+  }
+]
