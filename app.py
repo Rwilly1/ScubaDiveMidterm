@@ -3,8 +3,8 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime, timedelta
 import json
-import base64
 import io
+import base64
 import os
 import tempfile
 import webbrowser
@@ -864,123 +864,19 @@ def view_journals_page():
         with st.expander(f"{entry['title']} - {entry['date'][:10]} ({entry['location']})"):
             # Display photo if available
             if entry.get('image_path'):
-                st.image(entry['image_path'], use_container_width=True)
+                st.image(entry['image_path'], use_column_width=True)
             
             col1, col2, col3, col4 = st.columns([2,1,1,1])
             with col1:
-                st.markdown(f"**Location:** {entry['location']}")
+                st.write(f"**Location:** {entry['location']}")
             with col2:
-                st.markdown(f"**Diver:** {entry['author']}")
+                st.write(f"**Author:** {entry['author']}")
             with col3:
-                st.markdown(f"**Mood:** {entry['mood']}")
+                st.write(f"**Mood:** {entry['mood']}")
             with col4:
-                st.markdown(f"**Rating:** {'⭐' * entry['rating']}")
+                st.write(f"**Rating:** {'⭐' * entry['rating']}")
             
-            st.markdown("---")
-            st.markdown(entry['content'])
-            
-            # Download PDF button and functionality
-            if st.button(f"📥 Download as PDF", key=f"pdf_{entry['timestamp']}"):
-                import base64
-                from weasyprint import HTML
-                from io import BytesIO
-                
-                # Function to get base64 encoded image
-                def get_image_base64(image_path):
-                    try:
-                        with open(image_path, "rb") as img_file:
-                            return base64.b64encode(img_file.read()).decode()
-                    except:
-                        return None
-                
-                # Generate HTML content
-                html_content = f"""
-                <html>
-                <head>
-                    <title>{entry['title']} - Dive Journal</title>
-                    <style>
-                        @page {{
-                            margin: 2.5cm;
-                            @top-center {{
-                                content: "{entry['title']}";
-                                font-size: 9pt;
-                                color: #666;
-                            }}
-                            @bottom-center {{
-                                content: counter(page);
-                                font-size: 9pt;
-                                color: #666;
-                            }}
-                        }}
-                        body {{
-                            font-family: Arial, sans-serif;
-                            line-height: 1.6;
-                            margin: 0;
-                            padding: 0;
-                        }}
-                        .header {{
-                            text-align: center;
-                            margin-bottom: 30px;
-                        }}
-                        .title {{
-                            font-size: 24px;
-                            font-weight: bold;
-                            margin-bottom: 10px;
-                            color: #3C1642;
-                        }}
-                        .meta {{
-                            display: grid;
-                            grid-template-columns: repeat(4, 1fr);
-                            gap: 10px;
-                            margin: 20px 0;
-                            padding: 10px;
-                            background: #f5f5f5;
-                            border-radius: 5px;
-                        }}
-                        .content {{
-                            white-space: pre-wrap;
-                            margin-top: 20px;
-                        }}
-                        img {{
-                            max-width: 100%;
-                            height: auto;
-                            margin: 20px 0;
-                        }}
-                    </style>
-                </head>
-                <body>
-                    <div class="header">
-                        <div class="title">{entry['title']}</div>
-                        <div>{entry['date']}</div>
-                    </div>
-                    
-                    <div class="meta">
-                        <div><strong>Location:</strong> {entry['location']}</div>
-                        <div><strong>Diver:</strong> {entry['author']}</div>
-                        <div><strong>Mood:</strong> {entry['mood']}</div>
-                        <div><strong>Rating:</strong> {"⭐" * entry['rating']}</div>
-                    </div>
-                    
-                    {f'<img src="data:image/jpeg;base64,{get_image_base64(entry["image_path"])}">' if entry.get('image_path') else ''}
-                    
-                    <div class="content">
-                        {entry['content']}
-                    </div>
-                </body>
-                </html>
-                """
-                
-                # Generate PDF
-                pdf_buffer = BytesIO()
-                HTML(string=html_content).write_pdf(pdf_buffer)
-                
-                # Create download button
-                st.download_button(
-                    label="📄 Save PDF",
-                    data=pdf_buffer.getvalue(),
-                    file_name=f"dive_journal_{entry['date']}_{entry['title'].replace(' ', '_')}.pdf",
-                    mime="application/pdf",
-                )
+            st.write(entry['content'])
 
 def main():
     # Add tank logo to sidebar
