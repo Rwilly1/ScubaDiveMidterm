@@ -1,46 +1,47 @@
-# PADI Dive Planner Calculator
+# PADI Dive Planner
 
-A Python implementation of the PADI Recreational Dive Planner that helps calculate:
-- Pressure groups for single and repetitive dives
-- Surface interval requirements
-- Residual nitrogen times
-- No-decompression limits
+An interactive web application for planning scuba dives using PADI dive tables. Built with Streamlit and Python.
 
-## Setup
+## Features
 
-1. Create a virtual environment:
+- Interactive dive planning using PADI tables
+- Dive log management
+- Travel planning with safety checks
+- Weather conditions monitoring
+- Modern, responsive UI with turquoise theme
+
+## Installation
+
+1. Clone the repository:
 ```bash
-python3 -m venv venv
+git clone https://github.com/Rwilly1/ScubaDiveMidterm.git
+cd ScubaDiveMidterm
 ```
 
-2. Activate the virtual environment:
-```bash
-source venv/bin/activate  # On Unix/macOS
-```
-
-3. Install requirements:
+2. Install dependencies:
 ```bash
 pip install -r requirements.txt
 ```
 
-## Usage
-
-Run the program:
+3. Run the application:
 ```bash
-python divetable.py
+streamlit run app.py
 ```
 
-Follow the prompts to:
-1. Enter first dive depth and time
-2. Input surface interval
-3. Plan second dive depth and time
+## Usage
 
-The program will:
-- Calculate pressure groups
-- Check no-decompression limits
-- Compute residual nitrogen time
-- Validate dive plan safety
+1. **Dive Planning**: Plan single and repetitive dives using PADI tables
+2. **Dive Log**: Record and track your dive history
+3. **Travel Planning**: Check flight safety after diving
+4. **Weather**: Monitor diving conditions
 
-## Safety Notice
+## Technologies
 
-This is an educational implementation and should not be used for actual dive planning. Always consult official PADI dive tables and a certified diving instructor for actual dive planning.
+- Python
+- Streamlit
+- Plotly
+- Pandas
+
+## Author
+
+Remington Williams
