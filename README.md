@@ -34,6 +34,7 @@ streamlit run app.py
 2. **Dive Log**: Record and track your dive history
 3. **Travel Planning**: Check flight safety after diving
 4. **Weather**: Monitor diving conditions
+5. **Journaling**: Document your diving experiences with detailed notes and observations
 
 ## Technologies
 
