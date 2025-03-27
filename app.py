@@ -6,6 +6,8 @@ import json
 import io
 import base64
 import os
+import tempfile
+import webbrowser
 from dive_log import DiveLog, save_dive_log
 from dive_travel import DiveTravelCalculator
 from dive_journal import DiveJournal
@@ -51,6 +53,11 @@ st.markdown("""
         font-family: 'Courier New', monospace !important;
     }
     
+    /* Main content gradient background */
+    section[data-testid="stSidebarContent"], div[data-testid="stAppViewContainer"] {
+        background: linear-gradient(180deg, #000000 0%, #002F31 100%) !important;
+    }
+    
     /* Sidebar styles */
     .css-1d391kg, [data-testid="stSidebar"] {  /* Sidebar background */
         background-color: var(--secondary) !important;
@@ -67,12 +74,6 @@ st.markdown("""
     /* Force black text in sidebar */
     .css-pkbazv, .css-17lntkn, .css-5rimss, .css-1629p8f {
         color: var(--black) !important;
-    }
-    
-    /* Main content styles */
-    .main {
-        background-color: var(--primary);
-        color: var(--text);
     }
     
     /* Style radio buttons */
@@ -94,10 +95,6 @@ st.markdown("""
         background-color: var(--secondary);
         color: var(--text);
         border-radius: 20px;
-    }
-    .stButton>button:hover {
-        background-color: var(--accent);
-        color: var(--primary);
     }
     
     /* Input styles */
@@ -210,37 +207,6 @@ st.markdown("""
     }
     tbody tr:nth-child(even) {
         background-color: rgba(42, 157, 143, 0.2) !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
-# Custom CSS
-st.markdown("""
-    <style>
-    :root {
-        --dark-teal: #2A9D8F;
-        --light-teal: rgba(42, 157, 143, 0.1);
-    }
-    
-    .stButton button {
-        background-color: var(--dark-teal) !important;
-        color: white !important;
-    }
-    
-    .stButton button:hover {
-        background-color: #248277 !important;
-    }
-    
-    .info-box {
-        padding: 0.5rem;
-        border-radius: 0.25rem;
-        background-color: var(--light-teal);
-    }
-    
-    .info-text {
-        margin: 0;
-        color: var(--dark-teal);
-        font-size: 0.875rem;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -451,7 +417,7 @@ def view_logs_page():
     df = pd.DataFrame(load_dive_logs())
     
     if df.empty:
-        st.warning("No dive logs found.")
+        st.warning("No dive logs found. Enter a dive log to view here.")
         return
     
     # Create visualization
@@ -465,36 +431,46 @@ def view_logs_page():
         line=dict(color='#2A9D8F', width=2)  # Teal outline
     ))
     
+    # Update layout for rounded corners and styling
     fig.update_layout(
-        plot_bgcolor='#0A192F',  # Dark blue background
-        paper_bgcolor='#0A192F',  # Dark blue background
-        font=dict(family='Courier New', color='#64FFDA'),  # Light turquoise text
+        paper_bgcolor='rgba(0,0,0,0)',  # Transparent background
+        plot_bgcolor='rgba(14,17,23,0.5)',  # Semi-transparent dark background
         title=dict(
             text='Maximum Depth Over Time',
             x=0.5,
-            xanchor='center',
             y=0.95,
+            xanchor='center',
             yanchor='top',
-            font=dict(
-                family='Courier New',
-                size=16,
-                color='#FFFFFF'  
-            )
+            font=dict(size=24)
         ),
+        margin=dict(t=70, l=50, r=30, b=50),  # Increased top margin for title
         xaxis=dict(
-            gridcolor='#2A9D8F',  # Teal grid
-            gridwidth=0.1,
-            linecolor='#2A9D8F',  # Teal axis line
-            tickfont=dict(color='#64FFDA')  # Light turquoise ticks
+            showgrid=True,
+            gridcolor='rgba(42,157,143,0.1)',
+            showline=True,
+            linewidth=2,
+            linecolor='#2A9D8F'
         ),
         yaxis=dict(
-            gridcolor='#2A9D8F',  # Teal grid
-            gridwidth=0.1,
-            linecolor='#2A9D8F',  # Teal axis line
-            tickfont=dict(color='#64FFDA')  # Light turquoise ticks
+            showgrid=True,
+            gridcolor='rgba(42,157,143,0.1)',
+            showline=True,
+            linewidth=2,
+            linecolor='#2A9D8F'
         )
     )
     
+    # Add custom CSS for rounded corners
+    st.markdown("""
+        <style>
+        .js-plotly-plot .plotly, .js-plotly-plot .plot-container {
+            border-radius: 15px !important;
+            overflow: hidden !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # Display the graph
     st.plotly_chart(fig, use_container_width=True)
     
     # Prepare data for download
@@ -888,7 +864,7 @@ def view_journals_page():
         with st.expander(f"{entry['title']} - {entry['date'][:10]} ({entry['location']})"):
             # Display photo if available
             if entry.get('image_path'):
-                st.image(entry['image_path'], use_column_width=True)
+                st.image(entry['image_path'], use_container_width=True)
             
             col1, col2, col3, col4 = st.columns([2,1,1,1])
             with col1:
@@ -902,6 +878,122 @@ def view_journals_page():
             
             st.markdown("---")
             st.markdown(entry['content'])
+            
+            # Center the print button with CSS
+            st.markdown("""
+                <style>
+                    div[data-testid="stButton"] {
+                        text-align: center;
+                    }
+                </style>
+            """, unsafe_allow_html=True)
+            
+            # Print button and functionality
+            if st.button(f"🖨️ Print Entry", key=f"print_{entry['timestamp']}"):
+                # Import required modules
+                import os
+                import tempfile
+                import webbrowser
+                
+                # Generate printable HTML
+                html_content = f"""
+                <html>
+                <head>
+                    <title>{entry['title']} - Dive Journal</title>
+                    <style>
+                        /* Screen styles */
+                        body {{
+                            font-family: Arial, sans-serif;
+                            max-width: 800px;
+                            margin: 40px auto;
+                            padding: 20px;
+                            line-height: 1.6;
+                        }}
+                        .header {{
+                            text-align: center;
+                            margin-bottom: 30px;
+                        }}
+                        .title {{
+                            font-size: 24px;
+                            font-weight: bold;
+                            margin-bottom: 10px;
+                        }}
+                        .meta {{
+                            display: grid;
+                            grid-template-columns: repeat(4, 1fr);
+                            gap: 10px;
+                            margin: 20px 0;
+                            padding: 10px;
+                            background: #f5f5f5;
+                            border-radius: 5px;
+                        }}
+                        .content {{
+                            white-space: pre-wrap;
+                            margin-top: 20px;
+                        }}
+                        img {{
+                            max-width: 100%;
+                            height: auto;
+                            margin: 20px 0;
+                        }}
+                        
+                        /* Print-specific styles */
+                        @media print {{
+                            body {{
+                                margin: 0;
+                                padding: 15px;
+                            }}
+                            .meta {{
+                                background: none;
+                                border: 1px solid #ccc;
+                            }}
+                            .no-print {{
+                                display: none;
+                            }}
+                        }}
+                    </style>
+                    <script>
+                        // Auto-trigger print dialog
+                        window.onload = function() {{
+                            window.print();
+                        }}
+                    </script>
+                </head>
+                <body>
+                    <div class="header">
+                        <div class="title">{entry['title']}</div>
+                        <div>{entry['date']}</div>
+                    </div>
+                    
+                    <div class="meta">
+                        <div><strong>Location:</strong> {entry['location']}</div>
+                        <div><strong>Diver:</strong> {entry['author']}</div>
+                        <div><strong>Mood:</strong> {entry['mood']}</div>
+                        <div><strong>Rating:</strong> {"⭐" * entry['rating']}</div>
+                    </div>
+                    
+                    {f'<img src="{os.path.abspath(entry["image_path"])}" alt="Dive Photo">' if entry.get('image_path') else ''}
+                    
+                    <div class="content">
+                        {entry['content']}
+                    </div>
+                    
+                    <div class="no-print" style="margin-top: 30px; text-align: center;">
+                        <p>If the print dialog doesn't open automatically, press Ctrl/Cmd + P to print.</p>
+                    </div>
+                </body>
+                </html>
+                """
+                
+                # Create a temporary HTML file
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.html', mode='w') as f:
+                    f.write(html_content)
+                    temp_path = f.name
+                
+                # Open in browser for printing
+                webbrowser.open('file://' + os.path.abspath(temp_path))
+                
+                st.success("Print page opened in your browser! Use your browser's print function (Ctrl/Cmd + P) to print the journal entry.")
 
 def main():
     # Add tank logo to sidebar
@@ -923,6 +1015,24 @@ def main():
         </div>
     """, unsafe_allow_html=True)
     
+    # Add global button hover style
+    st.markdown("""
+        <style>
+            .stButton button {
+                transition: color 0.3s;
+            }
+            .stButton button:hover {
+                color: black !important;
+            }
+            
+            /* Center print buttons */
+            div[data-testid="stButton"] {
+                text-align: center;
+            }
+        </style>
+    """, unsafe_allow_html=True)
+    
+    # Set up navigation
     pages = {
         "Dive Log Entry": dive_log_page,
         "View Dive Logs": view_logs_page,
