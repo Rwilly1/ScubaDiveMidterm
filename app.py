@@ -3,8 +3,12 @@ import pandas as pd
 import plotly.express as px
 from datetime import datetime, timedelta
 import json
+import io
+import base64
+import os
 from dive_log import DiveLog, save_dive_log
 from dive_travel import DiveTravelCalculator
+from dive_journal import DiveJournal
 from dive_table import (
     get_pressure_group,
     get_new_group_after_surface_interval as get_new_pressure_group,
@@ -14,9 +18,6 @@ from dive_table import (
     validate_repetitive_dive,
     no_deco_limits
 )
-import io
-import base64
-import os
 
 # Read and encode the tank image
 def get_tank_image_base64():
@@ -800,6 +801,108 @@ def weather_page():
             Always check local weather reports and consult with dive operators before diving.
         """)
 
+def journal_entry_page():
+    st.title("📝 Dive Journal")
+    
+    # Initialize journal
+    journal = DiveJournal()
+    
+    with st.form("journal_entry", clear_on_submit=True):
+        st.markdown('<div class="section-title">New Journal Entry</div>', unsafe_allow_html=True)
+        
+        # Basic dive info
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            dive_date = st.date_input("Dive Date", value=datetime.now())
+        with col2:
+            dive_location = st.text_input("Dive Location")
+        with col3:
+            author = st.text_input("Diver Name")
+            
+        # Journal title and content
+        title = st.text_input("Entry Title")
+        content = st.text_area("Your Experience", height=200, 
+                             help="Write about your dive experience, marine life encounters, conditions, or anything memorable!")
+        
+        # Photo upload
+        uploaded_file = st.file_uploader("Upload a Photo", type=['png', 'jpg', 'jpeg'], 
+                                       help="Share a photo from your dive!")
+        
+        # Mood and rating
+        col3, col4 = st.columns(2)
+        with col3:
+            mood = st.select_slider("Dive Mood", 
+                                  options=["😫", "😔", "😐", "🙂", "😊"],
+                                  value="😊")
+        with col4:
+            rating = st.slider("Rate this dive", 1, 5, 5)
+        
+        if st.form_submit_button("Save Journal Entry", use_container_width=True):
+            entry = {
+                "date": dive_date.isoformat(),
+                "location": dive_location,
+                "author": author,
+                "title": title,
+                "content": content,
+                "mood": mood,
+                "rating": rating
+            }
+            
+            if journal.save_journal(entry, uploaded_file):
+                st.success("Journal entry saved successfully! 📝")
+            else:
+                st.error("Failed to save journal entry.")
+
+def view_journals_page():
+    st.title("📖 My Dive Journals")
+    
+    journal = DiveJournal()
+    entries = journal.get_all_journals()
+    
+    if not entries:
+        st.info("No journal entries yet. Start writing about your dive experiences!")
+        return
+    
+    # Filters
+    col1, col2 = st.columns(2)
+    with col1:
+        location_filter = st.multiselect(
+            "Filter by Location",
+            options=sorted(set(e['location'] for e in entries))
+        )
+    with col2:
+        author_filter = st.multiselect(
+            "Filter by Diver",
+            options=sorted(set(e['author'] for e in entries))
+        )
+    
+    # Apply filters
+    filtered_entries = entries
+    if location_filter:
+        filtered_entries = [e for e in filtered_entries if e['location'] in location_filter]
+    if author_filter:
+        filtered_entries = [e for e in filtered_entries if e['author'] in author_filter]
+    
+    # Display entries
+    for entry in filtered_entries:
+        with st.expander(f"{entry['title']} - {entry['date'][:10]} ({entry['location']})"):
+            # Display photo if available
+            if entry.get('image_path'):
+                st.image(entry['image_path'], use_column_width=True)
+            
+            col1, col2, col3, col4 = st.columns([2,1,1,1])
+            with col1:
+                st.markdown(f"**Location:** {entry['location']}")
+            with col2:
+                st.markdown(f"**Diver:** {entry['author']}")
+            with col3:
+                st.markdown(f"**Mood:** {entry['mood']}")
+            with col4:
+                st.markdown(f"**Rating:** {'⭐' * entry['rating']}")
+            
+            st.markdown("---")
+            st.markdown(entry['content'])
+
 def main():
     # Add tank logo to sidebar
     tank_image = get_tank_image_base64()
@@ -825,7 +928,9 @@ def main():
         "View Dive Logs": view_logs_page,
         "Dive Planner": dive_planner_page,
         "Travel Planner": travel_planner_page,
-        "Weather & Conditions": weather_page
+        "Weather & Conditions": weather_page,
+        "Write Journal": journal_entry_page,
+        "My Journals": view_journals_page
     }
     
     selection = st.sidebar.radio("", list(pages.keys()))
