@@ -864,7 +864,7 @@ def view_journals_page():
         with st.expander(f"{entry['title']} - {entry['date'][:10]} ({entry['location']})"):
             # Display photo if available
             if entry.get('image_path'):
-                st.image(entry['image_path'], use_container_width=True)
+                st.image(entry['image_path'], use_column_width=True)
             
             col1, col2, col3, col4 = st.columns([2,1,1,1])
             with col1:
