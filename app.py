@@ -890,6 +890,52 @@ def view_journals_page():
             
             st.write(entry['content'])
 
+def home_page():
+    st.title("🤿 Scuba Diving Assistant Instructions")
+    
+    st.markdown("""
+    ### How to Use This Application
+
+    1. **Logging a New Dive**
+       - Click "Log New Dive" in the sidebar
+       - Fill in dive details (date, location, depth, duration)
+       - Add any buddy information and personal notes
+       - Click "Save Dive Log" to store your entry
+
+    2. **Viewing Your Dive History**
+       - Select "View Dive Logs" from the sidebar
+       - Browse through your past dives
+       - Use filters to find specific dives
+       - Export logs if needed
+
+    3. **Planning Your Next Dive**
+       - Go to "Dive Planner"
+       - Enter your planned depth and time
+       - The planner will calculate your pressure group
+       - For repetitive dives, enter surface interval to get adjusted times
+
+    4. **Travel Planning**
+       - Use "Travel Planner" for trip organization
+       - Input destination and dates
+       - Track equipment and documentation needs
+
+    5. **Weather Check**
+       - Check "Weather & Conditions" before your dive
+       - View current conditions at dive sites
+       - Make informed decisions about dive timing
+
+    6. **Keeping a Dive Journal**
+       - Select "Write Journal" to write about your experiences
+       - Add detailed observations and memories
+       - View past entries in "My Journals"
+
+    ### Safety Notes
+    - Always follow safe diving practices
+    - Stay within no-decompression limits
+    - Plan your dives and dive your plan
+    - Never dive alone
+    """)
+
 def main():
     # Add tank logo to sidebar
     tank_image = get_tank_image_base64()
@@ -929,7 +975,8 @@ def main():
     
     # Set up navigation
     pages = {
-        "Dive Log Entry": dive_log_page,
+        "Home": home_page,
+        "Log New Dive": dive_log_page,
         "View Dive Logs": view_logs_page,
         "Dive Planner": dive_planner_page,
         "Travel Planner": travel_planner_page,
