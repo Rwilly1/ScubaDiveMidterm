@@ -891,50 +891,157 @@ def view_journals_page():
             st.write(entry['content'])
 
 def home_page():
-    st.title("🤿 Scuba Diving Assistant Instructions")
-    
+    # Add custom CSS for the home page
     st.markdown("""
-    ### How to Use This Application
+        <style>
+        .home-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+            text-align: center;
+        }
+        .home-content h1 {
+            color: #2A9D8F;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+        .home-content h3 {
+            color: #264653;
+            margin-top: 2rem;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+        .instruction-section {
+            background: rgba(42, 157, 143, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            text-align: left;
+        }
+        .instruction-section strong {
+            color: #2A9D8F;
+        }
+        .safety-notes {
+            background: rgba(230, 57, 70, 0.1);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        .safety-notes h3 {
+            color: #E63946;
+        }
+        .safety-notes ul {
+            text-align: left;
+            list-style-position: inside;
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
-    1. **Logging a New Dive**
-       - Click "Log New Dive" in the sidebar
-       - Fill in dive details (date, location, depth, duration)
-       - Add any buddy information and personal notes
-       - Click "Save Dive Log" to store your entry
-
-    2. **Viewing Your Dive History**
-       - Select "View Dive Logs" from the sidebar
-       - Browse through your past dives
-       - Use filters to find specific dives
-       - Export logs if needed
-
-    3. **Planning Your Next Dive**
-       - Go to "Dive Planner"
-       - Enter your planned depth and time
-       - The planner will calculate your pressure group
-       - For repetitive dives, enter surface interval to get adjusted times
-
-    4. **Travel Planning**
-       - Use "Travel Planner" for trip organization
-       - Input destination and dates
-       - Track equipment and documentation needs
-
-    5. **Weather Check**
-       - Check "Weather & Conditions" before your dive
-       - View current conditions at dive sites
-       - Make informed decisions about dive timing
-
-    6. **Keeping a Dive Journal**
-       - Select "Write Journal" to write about your experiences
-       - Add detailed observations and memories
-       - View past entries in "My Journals"
-
-    ### Safety Notes
-    - Always follow safe diving practices
-    - Stay within no-decompression limits
-    - Plan your dives and dive your plan
-    - Never dive alone
-    """)
+    # Title
+    st.markdown('<h1 class="home-content">🤿 Scuba Diving Assistant Instructions</h1>', unsafe_allow_html=True)
+    
+    # Main content container
+    st.markdown('<div class="home-content">', unsafe_allow_html=True)
+    
+    # How to Use section
+    st.markdown('<h3>How to Use This Application</h3>', unsafe_allow_html=True)
+    
+    # 1. Logging a New Dive
+    with st.container():
+        st.markdown("""
+            <div class="instruction-section">
+                <strong>1. Logging a New Dive</strong>
+                <ul>
+                    <li>Click "Log New Dive" in the sidebar</li>
+                    <li>Fill in dive details (date, location, depth, duration)</li>
+                    <li>Add any buddy information and personal notes</li>
+                    <li>Click "Save Dive Log" to store your entry</li>
+                </ul>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    # 2. Viewing Dive History
+    with st.container():
+        st.markdown("""
+            <div class="instruction-section">
+                <strong>2. Viewing Your Dive History</strong>
+                <ul>
+                    <li>Select "View Dive Logs" from the sidebar</li>
+                    <li>Browse through your past dives</li>
+                    <li>Use filters to find specific dives</li>
+                    <li>Export logs if needed</li>
+                </ul>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    # 3. Planning Next Dive
+    with st.container():
+        st.markdown("""
+            <div class="instruction-section">
+                <strong>3. Planning Your Next Dive</strong>
+                <ul>
+                    <li>Go to "Dive Planner"</li>
+                    <li>Enter your planned depth and time</li>
+                    <li>The planner will calculate your pressure group</li>
+                    <li>For repetitive dives, enter surface interval to get adjusted times</li>
+                </ul>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    # 4. Travel Planning
+    with st.container():
+        st.markdown("""
+            <div class="instruction-section">
+                <strong>4. Travel Planning</strong>
+                <ul>
+                    <li>Use "Travel Planner" for trip organization</li>
+                    <li>Input destination and dates</li>
+                    <li>Track equipment and documentation needs</li>
+                </ul>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    # 5. Weather Check
+    with st.container():
+        st.markdown("""
+            <div class="instruction-section">
+                <strong>5. Weather Check</strong>
+                <ul>
+                    <li>Check "Weather & Conditions" before your dive</li>
+                    <li>View current conditions at dive sites</li>
+                    <li>Make informed decisions about dive timing</li>
+                </ul>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    # 6. Keeping a Dive Journal
+    with st.container():
+        st.markdown("""
+            <div class="instruction-section">
+                <strong>6. Keeping a Dive Journal</strong>
+                <ul>
+                    <li>Select "Write Journal" to write about your experiences</li>
+                    <li>Add detailed observations and memories</li>
+                    <li>View past entries in "My Journals"</li>
+                </ul>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    # Safety Notes
+    with st.container():
+        st.markdown("""
+            <div class="safety-notes">
+                <h3>Safety Notes</h3>
+                <ul>
+                    <li>Always follow safe diving practices</li>
+                    <li>Stay within no-decompression limits</li>
+                    <li>Plan your dives and dive your plan</li>
+                    <li>Never dive alone</li>
+                </ul>
+            </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 def main():
     # Add tank logo to sidebar
