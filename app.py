@@ -42,7 +42,7 @@ def get_tank_image_base64():
 
 st.set_page_config(
     page_title="Scuba Diving Assistant",
-    page_icon="🤿",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -232,7 +232,7 @@ def load_dive_logs():
         return []
 
 def dive_log_page():
-    st.title("📝 Log New Dive")
+    st.title(" Log New Dive")
 
     # Add custom CSS for input styling
     st.markdown("""
@@ -423,7 +423,7 @@ def dive_log_page():
         st.success("Dive log saved successfully!")
 
 def view_logs_page():
-    st.title("📊 View Dive Logs")
+    st.title(" View Dive Logs")
     
     # Load dive logs
     df = pd.DataFrame(load_dive_logs())
@@ -544,12 +544,12 @@ def view_logs_page():
     b64 = base64.b64encode(csv.encode()).decode()
     
     # Create download link with custom styling
-    href = f'<a href="data:file/csv;base64,{b64}" download="dive_logs.csv" class="download-button">⬇️ Download Dive Logs CSV ⬇️</a>'
+    href = f'<a href="data:file/csv;base64,{b64}" download="dive_logs.csv" class="download-button"> Download Dive Logs CSV </a>'
     st.markdown(href, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
 def dive_planner_page():
-    st.title("🤿 PADI Dive Planner")
+    st.title(" PADI Dive Planner")
     
     # Get available depths from the dive tables
     available_depths = sorted(list(no_deco_limits.keys()))
@@ -624,7 +624,7 @@ def dive_planner_page():
     if check_ndl(depth2, tbt):
         st.success("Second dive is within no-decompression limits.")
     else:
-        st.error("⚠️ WARNING: Second dive exceeds no-decompression limits!")
+        st.error(" WARNING: Second dive exceeds no-decompression limits!")
 
     # Add explanations
     st.markdown("""
@@ -668,13 +668,13 @@ def dive_planner_page():
                '
                onmouseover='this.style.backgroundColor="#64FFDA"'
                onmouseout='this.style.backgroundColor="#2A9D8F"'>
-                📄 View PADI Dive Tables
+                View PADI Dive Tables
             </a>
         </div>
     """, unsafe_allow_html=True)
 
 def travel_planner_page():
-    st.title("✈️ Dive Travel Planner")
+    st.title(" Dive Travel Planner")
     
     st.markdown('<div class="dive-form">', unsafe_allow_html=True)
     st.markdown('<div class="section-title">Flight Details</div>', unsafe_allow_html=True)
@@ -716,7 +716,7 @@ def travel_planner_page():
         else:
             st.error(message)
             st.warning("""
-            ⚠️ Flying too soon after diving increases your risk of decompression sickness (DCS).
+            Flying too soon after diving increases your risk of decompression sickness (DCS).
             Common symptoms include:
             - Joint pain
             - Numbness or tingling
@@ -729,7 +729,7 @@ def travel_planner_page():
     st.markdown('</div>', unsafe_allow_html=True)
 
 def weather_page():
-    st.title("🌊 Weather & Conditions")
+    st.title(" Weather & Conditions")
     
     # Create a container for the map that takes up most of the screen
     map_container = st.container()
@@ -790,7 +790,7 @@ def weather_page():
         """)
 
 def journal_entry_page():
-    st.title("📝 Dive Journal")
+    st.title(" Dive Journal")
     
     # Initialize journal
     journal = DiveJournal()
@@ -820,8 +820,8 @@ def journal_entry_page():
         col3, col4 = st.columns(2)
         with col3:
             mood = st.select_slider("Dive Mood", 
-                                  options=["😫", "😔", "😐", "🙂", "😊"],
-                                  value="😊")
+                                  options=["", "", "", "", ""],
+                                  value="")
         with col4:
             rating = st.slider("Rate this dive", 1, 5, 5)
         
@@ -837,12 +837,12 @@ def journal_entry_page():
             }
             
             if journal.save_journal(entry, uploaded_file):
-                st.success("Journal entry saved successfully! 📝")
+                st.success("Journal entry saved successfully! ")
             else:
                 st.error("Failed to save journal entry.")
 
 def view_journals_page():
-    st.title("📖 My Dive Journals")
+    st.title(" My Dive Journals")
     
     journal = DiveJournal()
     entries = journal.get_all_journals()
@@ -886,7 +886,7 @@ def view_journals_page():
             with col3:
                 st.write(f"**Mood:** {entry['mood']}")
             with col4:
-                st.write(f"**Rating:** {'⭐' * entry['rating']}")
+                st.write(f"**Rating:** {'*' * entry['rating']}")
             
             st.write(entry['content'])
 
@@ -899,11 +899,6 @@ def home_page():
             margin: 0 auto;
             padding: 2rem;
             text-align: center;
-        }
-        .home-content h1 {
-            color: #2A9D8F;
-            margin-bottom: 2rem;
-            font-size: 2.5rem;
         }
         .home-content h3 {
             color: #264653;
@@ -937,8 +932,8 @@ def home_page():
         </style>
     """, unsafe_allow_html=True)
 
-    # Title
-    st.markdown('<h1 class="home-content">🤿 Scuba Diving Assistant Instructions</h1>', unsafe_allow_html=True)
+    # Title using Streamlit's native title
+    st.title("Scuba Diving Assistant Instructions")
     
     # Main content container
     st.markdown('<div class="home-content">', unsafe_allow_html=True)
@@ -1066,17 +1061,17 @@ def main():
     # Add global button hover style
     st.markdown("""
         <style>
-            .stButton button {
-                transition: color 0.3s;
-            }
-            .stButton button:hover {
-                color: black !important;
-            }
-            
-            /* Center print buttons */
-            div[data-testid="stButton"] {
-                text-align: center;
-            }
+        .stButton button {
+            transition: color 0.3s;
+        }
+        .stButton button:hover {
+            color: black !important;
+        }
+        
+        /* Center print buttons */
+        div[data-testid="stButton"] {
+            text-align: center;
+        }
         </style>
     """, unsafe_allow_html=True)
     
