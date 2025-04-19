@@ -1090,5 +1090,6 @@ def main():
     selection = st.sidebar.radio("", list(pages.keys()))
     pages[selection]()
 
+
 if __name__ == "__main__":
     main()
